@@ -1,5 +1,10 @@
 package edu.lewisu.cs.kylevbye;
 
+import edu.lewisu.cs.kylevbye.util.*;
+
+import java.io.File;
+import java.util.ArrayList;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -7,11 +12,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class TravelByMap extends ApplicationAdapter {
+	
+	//	Backs one directory, then goes into core/assets/config.txt
+	String fileImageConfig = new File(System.getProperty("user.dir")).getParent() + "\\core\\assets\\config.txt";
+	
+	String[] fileImageNames;
 	SpriteBatch batch;
 	Texture img;
 	OrthographicCamera cam;
+	ArrayList<Image> images;
 	int WIDTH, HEIGHT;
 	
 	@Override
@@ -21,8 +33,56 @@ public class TravelByMap extends ApplicationAdapter {
 		Gdx.graphics.setWindowedMode(1280, 720);
 		WIDTH = Gdx.graphics.getWidth();
 		HEIGHT = Gdx.graphics.getHeight();
-		
+		images = new ArrayList<Image>();
 		batch = new SpriteBatch();
+		
+		System.out.println(fileImageConfig);
+		// Init all images
+		TextFileReader fileReader = new TextFileReader(fileImageConfig);
+		if (!fileReader.readFile()) { 
+			System.err.println("Error reading " + fileImageConfig); 
+			System.exit(1);
+		}
+		ArrayList<String> fileLines = new ArrayList<String>(); 
+		for (String data : fileReader.getData()) {
+			if (!(data.charAt(0) == '#')) fileLines.add(data);
+		}
+		
+		for (String fileLine : fileLines) {
+			String[] fileLineParts = fileLine.split("\t");
+			
+			//	TextureRegion
+			Texture tex = new Texture(fileLineParts[0]);
+			TextureRegion texR = new TextureRegion(tex);
+			
+			//	Coordinates x,y
+			int imgX = Integer.parseInt(fileLineParts[1]);
+			int imgY = Integer.parseInt(fileLineParts[2]);
+			
+			//	Origin in x,y and angle
+			int imgOrgX = 0;
+			int imgOrgY = 0;
+			int imgAngle = 0;
+			
+			//	Width and Height
+			int imgWidth = tex.getWidth();
+			int imgHeight = tex.getHeight();
+			
+			//	minZoom
+			float imgMinZoom = Float.parseFloat(fileLineParts[3]);
+			
+			//	Scale x,y
+			float scaleX = Float.parseFloat(fileLineParts[4]);
+			float scaleY = Float.parseFloat(fileLineParts[5]);
+			
+			//	Add image
+			images.add(new Image(
+					texR, imgX, imgY, imgWidth, imgHeight, 
+					imgOrgX, imgOrgY, imgAngle, imgMinZoom,
+					scaleX, scaleY
+					));
+			
+		}
 		img = new Texture("badlogic.jpg");
 		cam = new OrthographicCamera(WIDTH, HEIGHT);
 		cam.translate(WIDTH/2, HEIGHT/2);
@@ -37,11 +97,20 @@ public class TravelByMap extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		processInput();
-		
-		cam.update();
-		batch.setProjectionMatrix(cam.combined);
+		updateCam();
 		batch.begin();
-		batch.draw(img, 0, 0);
+		
+		for (Image i : images) {
+			if (cam.zoom <= i.getMinZoom() || i.getMinZoom() == 0.0f) {
+				batch.draw(
+						i.getTexture(), i.getX(), i.getY(), i.getOrgX(), i.getOrgY(), 
+						i.getWidth(), i.getHeight(), i.getScaleX(), i.getScaleY(), i.getAngle()
+						);
+			}
+
+		}
+		
+		//batch.draw(img, 0, 0);
 		batch.end();
 	}
 	
@@ -129,6 +198,11 @@ public class TravelByMap extends ApplicationAdapter {
 			
 		}
 		
+	}
+	
+	private void updateCam() {
+		cam.update();
+		batch.setProjectionMatrix(cam.combined);
 	}
 	
 }
