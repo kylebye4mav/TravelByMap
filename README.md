@@ -2,7 +2,7 @@
 
 To run, use any method:
 
-    1.) Using an IDE, set MazeGame as the Main class and the IDE's run function after importing.
+    1.) Using an IDE, set TravelByMap as the Main class and the IDE's run function after importing.
 
     2.) Using the command line, run this command: "./gradlew desktop:run"
     Make sure you are in the TravelByMap directory.
