@@ -1,6 +1,7 @@
 # TravelByMap
 
 To run, use any method:
+
     1.) Using an IDE, set MazeGame as the Main class and the IDE's run function after importing.
 
     2.) Using the command line, run this command: "./gradlew desktop:run"
@@ -9,6 +10,7 @@ To run, use any method:
     3.) Run start.bat (No promises that batch files will work on MAC OS)
 
 Controls:
+
     WASD to move.
     Q to rotate counter-clockwise
     E to rotate clockwise
