@@ -26,6 +26,8 @@
 /.gradle/buildOutputCleanup/
 /.gradle/checksums/
 /.gradle/vcs-1/
+/.gradle/6.3/executionHistory/executionHistory.lock
+/.gradle/6.3/fileHashes/fileHashes.lock
 
 # JavaDocs
 /doc/
@@ -33,3 +35,4 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 /bin/
+/.gradle/

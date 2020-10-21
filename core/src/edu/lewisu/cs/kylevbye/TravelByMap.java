@@ -16,8 +16,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class TravelByMap extends ApplicationAdapter {
 	
-	//	Backs one directory, then goes into core/assets/config.txt
-	String fileImageConfig = new File(System.getProperty("user.dir")).getParent() + "\\core\\assets\\config.txt";
+	//	Backs one directory, then goes into assets/config.txt
+	//	Default for running on command line
+	String fileImageConfig = new File(System.getProperty("user.dir")).getParent() + "\\assets\\config.txt";
 	
 	String[] fileImageNames;
 	SpriteBatch batch;
@@ -25,6 +26,7 @@ public class TravelByMap extends ApplicationAdapter {
 	OrthographicCamera cam;
 	ArrayList<Image> images;
 	int WIDTH, HEIGHT;
+	int tries = 0;
 	
 	@Override
 	public void create () {
@@ -36,12 +38,22 @@ public class TravelByMap extends ApplicationAdapter {
 		images = new ArrayList<Image>();
 		batch = new SpriteBatch();
 		
-		System.out.println(fileImageConfig);
 		// Init all images
 		TextFileReader fileReader = new TextFileReader(fileImageConfig);
-		if (!fileReader.readFile()) { 
-			System.err.println("Error reading " + fileImageConfig); 
-			System.exit(1);
+		if (!fileReader.readFile()) {
+			
+			//	If running through eclipse, change config location.
+			//	Will terminate program after 3 failed attempts.
+			if (tries < 3) {
+				fileImageConfig = new File(System.getProperty("user.dir")).getParent() + "\\core\\assets\\config.txt";
+				++tries;
+				create();
+				return;
+			}
+			else {
+				System.err.println("Error reading " + fileImageConfig); 
+				System.exit(1);
+			}
 		}
 		ArrayList<String> fileLines = new ArrayList<String>(); 
 		for (String data : fileReader.getData()) {
@@ -130,74 +142,50 @@ public class TravelByMap extends ApplicationAdapter {
 		//	Zoom (RF)
 		//
 		
+		//	Check Shift, multiply zoomAmount if needed.
+		float zoomAmount = .01f;
+		if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT)) zoomAmount *= 10f;
+		
 		//	Check 'R', zoom in if needed.
-		if(Gdx.input.isKeyPressed(Keys.R)) {
-			cam.zoom -= .01f;
-		}
+		if(Gdx.input.isKeyPressed(Keys.R)) cam.zoom -= zoomAmount;
 		
 		//	Check 'F', zoom out if needed.
-		if(Gdx.input.isKeyPressed(Keys.F)) {
-			cam.zoom += .01f;
-		}
+		if(Gdx.input.isKeyPressed(Keys.F)) cam.zoom += zoomAmount;
 		
 		//
 		//	Rotate (QE)
 		//
-		if (Gdx.input.isKeyPressed(Keys.Q)) {
-			cam.rotate(1f);
-		}
+		
+		//	Check Shift, multiply rotateAmount if needed.
+		float rotateAmount = .1f;
+		if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT)) rotateAmount *= 10f;
+		
+		//	Check 'Q', rotate counter-clockwise if needed.
+		if (Gdx.input.isKeyPressed(Keys.Q)) cam.rotate(-1*rotateAmount);
+		
+		//	Check 'E' rotate clockwise if needed.
+		if (Gdx.input.isKeyPressed(Keys.E)) cam.rotate(rotateAmount);
 		
 		//
 		//	Process Movement (WASD, Shift + WASD)
 		//
 		
-		if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT)) {
-			
-			//	Check 'W', translate up if needed.
-			if(Gdx.input.isKeyPressed(Keys.W)) {
-				cam.translate(0, 7f);
-			}
-			
-			//	Check 'A', translate left if needed.
-			if(Gdx.input.isKeyPressed(Keys.A)) {
-				cam.translate(-7f, 0);
-			}
-			
-			//	Check 'S', translate down if needed.
-			if(Gdx.input.isKeyPressed(Keys.S)) {
-				cam.translate(0, -7f);
-			}
-			
-			//	Check 'D', translate right if needed.
-			if(Gdx.input.isKeyPressed(Keys.D)) {
-				cam.translate(7f, 0);
-			}
-			
-		}
-		else {
-			
-			//	Check 'W', translate up if needed.
-			if(Gdx.input.isKeyPressed(Keys.W)) {
-				cam.translate(0, 1f);
-			}
-			
-			//	Check 'A', translate left if needed.
-			if(Gdx.input.isKeyPressed(Keys.A)) {
-				cam.translate(-1f, 0);
-			}
-			
-			//	Check 'S', translate down if needed.
-			if(Gdx.input.isKeyPressed(Keys.S)) {
-				cam.translate(0, -1f);
-			}
-			
-			//	Check 'D', translate right if needed.
-			if(Gdx.input.isKeyPressed(Keys.D)) {
-				cam.translate(1f, 0);
-			}
-			
-		}
+		//	Check Shift, multiply movementAmount if needed.
+		float movementAmount = 1f;;
+		if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT)) movementAmount *= 10f;		
 		
+		//	Check 'W', translate up if needed.
+		if(Gdx.input.isKeyPressed(Keys.W)) cam.translate(0, movementAmount);
+				
+		//	Check 'A', translate left if needed.
+		if(Gdx.input.isKeyPressed(Keys.A)) cam.translate(-1*movementAmount, 0);
+				
+		//	Check 'S', translate down if needed.
+		if(Gdx.input.isKeyPressed(Keys.S)) cam.translate(0, -1*movementAmount);
+				
+		//	Check 'D', translate right if needed.
+		if(Gdx.input.isKeyPressed(Keys.D)) cam.translate(movementAmount, 0);
+	
 	}
 	
 	private void updateCam() {

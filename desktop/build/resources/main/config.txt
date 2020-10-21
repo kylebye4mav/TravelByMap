@@ -1,0 +1,10 @@
+# filename	x	y	minZoom	scaleX	scaleY
+badlogic.jpg	0	0	3	1	1
+wolf.jpg	400	200	.7	.1	.2	
+kapkan.jpg	200	400	.7	.1	.1	
+confusedMan.jpg	600	600	3	1	1
+bond.jpg	800	120	.7	.9	.9
+gunbarrel.png	700	100	3	.5	.5
+spy.png	1000	500	5	1	1
+desert1.jpg	-100	600	5	.15	.15
+spy1.png	0	600	.7	.5	.5
